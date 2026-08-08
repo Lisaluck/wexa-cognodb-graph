@@ -186,9 +186,4 @@ npx vercel --prod
 ```
 
 ## Submission
-
-Email `hr@wexa.ai` with subject:
-
-`CognoDB Assignment 2 – <Your Name>`
-
 Include the GitHub repository URL and hosted demo link.
