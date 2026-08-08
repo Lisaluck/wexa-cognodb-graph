@@ -43,12 +43,20 @@ ORDER BY f.name
 
   recallTrace: `
 MATCH (rec:Recall {id: $recallId})-[:AFFECTS]->(b:Batch)
-OPTIONAL MATCH (farm:Farm)-[:PRODUCED]->(b)-[:OF_PRODUCT]->(p:Product)
-OPTIONAL MATCH path = (b)-[:PROCESSED_AT|SHIPPED_TO|STORED_AT*1..4]->(fac:Facility)
+OPTIONAL MATCH (farm:Farm)-[:PRODUCED]->(b)
+OPTIONAL MATCH (b)-[:OF_PRODUCT]->(p:Product)
+OPTIONAL MATCH (b)-[:PROCESSED_AT|SHIPPED_TO|STORED_AT*1..4]->(fac:Facility)
 OPTIONAL MATCH (fac)-[:DELIVERS_TO]->(ret:Retailer)
 OPTIONAL MATCH (b)-[:DELIVERED_TO]->(direct:Retailer)
-WITH rec, collect(DISTINCT b) AS batches,
-     collect(DISTINCT {batch: b, product: p, farm: farm}) AS batchRows,
+WITH rec,
+     collect(DISTINCT {
+       batchId: b.id,
+       lotCode: b.lotCode,
+       harvestDate: b.harvestDate,
+       quantityKg: b.quantityKg,
+       productName: p.name,
+       farmName: farm.name
+     }) AS batchRows,
      collect(DISTINCT fac) AS facilities,
      collect(DISTINCT ret) + collect(DISTINCT direct) AS retailers
 RETURN rec {

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { isDbError } from "./neo4j";
+import { toNumber } from "./neo4j-value";
 import type { ApiErrorBody } from "./types";
+
+export { toNumber };
 
 export function jsonOk<T>(data: T, init?: ResponseInit) {
   return NextResponse.json(data, init);
@@ -27,13 +30,7 @@ export function handleRouteError(error: unknown) {
   if (error instanceof Error && error.message.includes("NEO4J_")) {
     return jsonError(error.message, "DB_UNREACHABLE", 503);
   }
-  return jsonError("Unexpected server error.", "INTERNAL", 500);
-}
-
-export function toNumber(value: unknown): number {
-  if (typeof value === "number") return value;
-  if (value && typeof value === "object" && "toNumber" in value) {
-    return (value as { toNumber: () => number }).toNumber();
-  }
-  return Number(value ?? 0);
+  const message =
+    error instanceof Error ? error.message : "Unexpected server error.";
+  return jsonError(message || "Unexpected server error.", "INTERNAL", 500);
 }
